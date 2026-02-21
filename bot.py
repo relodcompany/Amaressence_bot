@@ -91,7 +91,7 @@ def is_group(update: Update) -> bool:
 
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-await update.message.reply_text(
+    await update.message.reply_text(
     "Task bot is ready.\n"
     "Use these commands in your group:\n"
     "/add category ; task\n"  # Removed |, added ; 
