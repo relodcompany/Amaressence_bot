@@ -34,10 +34,9 @@ def init_db() -> None:
 
 
 def parse_add_payload(payload: str) -> tuple[str, str]:
-    if "|" not in payload:
-        raise ValueError("Format must be: /add <category> | <task description>")
-
-    category, task = [part.strip() for part in payload.split("|", 1)]
+    if ";" not in payload:  # ← CHANGED: ";" instead of "|"
+        raise ValueError("Format must be: /add <category> ; <task description>")  # ← CHANGED: ";" 
+    category, task = [part.strip() for part in payload.split(";", 1)]  # ← CHANGED: split(";", 1)
     if not category or not task:
         raise ValueError("Both category and task description are required.")
 
@@ -92,15 +91,15 @@ def is_group(update: Update) -> bool:
 
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    await update.message.reply_text(
-        "Task bot is ready.\n"
-        "Use these commands in your group:\n"
-        "/add <category> | <task>\n"
-        "/complete <task_id>\n"
-        "/uncomplete <task_id>\n"
-        "/remove <task_id>\n"
-        "/list"
-    )
+await update.message.reply_text(
+    "Task bot is ready.\n"
+    "Use these commands in your group:\n"
+    "/add category ; task\n"  # Removed |, added ; 
+    "/complete task_id\n"
+    "/uncomplete task_id\n"
+    "/remove task_id\n"
+    "/list"
+)
 
 
 async def add_task(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
@@ -121,7 +120,7 @@ async def add_task(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 
 async def complete_task(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     if not context.args or not context.args[0].isdigit():
-        await update.message.reply_text("Usage: /complete <task_id>")
+        await update.message.reply_text("Usage: /complete task_id")
         return
 
     task_id = int(context.args[0])
@@ -133,7 +132,7 @@ async def complete_task(update: Update, context: ContextTypes.DEFAULT_TYPE) -> N
 
 async def uncomplete_task(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     if not context.args or not context.args[0].isdigit():
-        await update.message.reply_text("Usage: /uncomplete <task_id>")
+        await update.message.reply_text("Usage: /uncomplete task_id")
         return
 
     task_id = int(context.args[0])
@@ -145,7 +144,7 @@ async def uncomplete_task(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
 
 async def remove_task(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     if not context.args or not context.args[0].isdigit():
-        await update.message.reply_text("Usage: /remove <task_id>")
+        await update.message.reply_text("Usage: /remove task_id")
         return
 
     task_id = int(context.args[0])
@@ -158,7 +157,7 @@ async def remove_task(update: Update, context: ContextTypes.DEFAULT_TYPE) -> Non
 async def list_tasks(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     grouped = fetch_tasks_grouped()
     if not grouped:
-        await update.message.reply_text("No tasks yet. Add one with /add <category> | <task>")
+        await update.message.reply_text("No tasks yet. Add one with /add category ; task")
         return
 
     lines = ["📋 *Tasks by category*"]
