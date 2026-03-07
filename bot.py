@@ -2,6 +2,7 @@ import logging
 import os
 import sqlite3
 from contextlib import closing
+from html import escape
 from pathlib import Path
 
 from telegram import Update
@@ -160,14 +161,14 @@ async def list_tasks(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None
         await update.message.reply_text("No tasks yet. Add one with /add category ; task")
         return
 
-    lines = ["📋 *Tasks by category*"]
+    lines = ["📋 <b>Tasks by category</b>"]
     for category, tasks in grouped.items():
-        lines.append(f"\n*{category}*")
+        lines.append(f"\n<b>{escape(category)}</b>")
         for task_id, task, completed in tasks:
             status = "✅" if completed else "⬜"
-            lines.append(f"{status} #{task_id} {task}")
+            lines.append(f"{status} #{task_id} {escape(task)}")
 
-    await update.message.reply_text("\n".join(lines), parse_mode="Markdown")
+    await update.message.reply_text("\n".join(lines), parse_mode="HTML")
 
 
 def main() -> None:
