@@ -35,12 +35,12 @@ def init_db() -> None:
 
 
 def parse_add_payload(payload: str) -> tuple[str, str]:
-    if ";" not in payload:  # ← CHANGED: ";" instead of "|"
-        raise ValueError("Format must be: /add <category> ; <task description>")  # ← CHANGED: ";" 
-    category, task = [part.strip() for part in payload.split(";", 1)]  # ← CHANGED: split(";", 1)
+    sep = ";" if ";" in payload else ("|" if "|" in payload else None)
+    if sep is None:
+        raise ValueError("Format must be: /add <category> ; <task description>")
+    category, task = [part.strip() for part in payload.split(sep, 1)]
     if not category or not task:
         raise ValueError("Both category and task description are required.")
-
     return category, task
 
 
@@ -95,7 +95,6 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     await update.message.reply_text(
     "Task bot is ready.\n"
     "Use these commands in your group:\n"
-    "/add category ; task\n"  # Removed |, added ; 
     "/complete task_id\n"
     "/uncomplete task_id\n"
     "/remove task_id\n"
